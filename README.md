@@ -1,62 +1,66 @@
-
 ### Project Title: Raspberry Pi Sunrise Alarm System
-
----
 
 ### Overview
 
-This project involves creating a sunrise simulation wake-up alarm using a Raspberry Pi and a dimmable LED bulb. The system gradually increases the brightness of the bulb in the morning, mimicking a natural sunrise to help you wake up more gently. The setup uses 220V AC power supply and safely interfaces it with the low-voltage Raspberry Pi using a TRIAC-based dimming circuit.
+This project involves creating a sunrise simulation wake-up alarm using a Raspberry Pi and a dimmable LED bulb. The system gradually increases the brightness of the bulb in the morning, mimicking a natural sunrise to help you wake up more gently. The setup uses 230V AC power supply and safely interfaces it with the low-voltage Raspberry Pi using a TRIAC-based dimming circuit. A separate 5V power supply from the mains powers the entire circuit, including the ESP32 for PWM control. An 85°C thermal fuse is included for critical overheating protection.
 
 ### Features
 
 * **Smooth Sunrise Simulation** : Gradual increase in light intensity over a set period to simulate sunrise.
-* **PWM Control** : The Raspberry Pi generates a PWM signal to control the dimmable LED bulb's brightness.
-* **Safe High-Voltage Handling** : The circuit includes a TRIAC and optocoupler to safely control the 220V AC bulb.
+* **PWM Control** : The ESP32 generates a PWM signal to control the dimmable LED bulb's brightness.
+* **Thermal Protection** : An 85°C thermal fuse cuts power if the TRIAC overheats, ensuring the circuit's safety.
+* **Integrated Power Supply** : The entire circuit is powered from a 230V AC source, using a 5V AC-DC converter.
 
 ### Component List
 
-1. **Raspberry Pi** (any model with GPIO pins)
-2. **Dimmable LED Bulb** (compatible with 220V AC and PWM dimming)
-3. **TRIAC** (e.g., BTA16, suitable for 220V AC)
-4. **Optocoupler** (e.g., MOC3021, for TRIAC triggering)
-5. **Snubber Circuit Components** :
-   1. Resistor (e.g., 330 ohms, 1W)
-   2. Capacitor (e.g., 0.01µF, 600V)
-6. **Resistor** (1k ohm, for current limiting in the optocoupler input)
-7. **Heat Sink** (for the TRIAC, to dissipate heat)
-8. **Breadboard and Jumper Wires** (for prototyping)
-9. **220V AC Power Socket**
-10. **5V USB Power Adapter** (for powering the Raspberry Pi)
-11. **Insulated Enclosure** (for housing the high-voltage components safely)
+1. **Raspberry Pi** (any model with GPIO pins) - Optional if used as the server only.
+2. **ESP32** : For generating the PWM signal and wireless communication with the Raspberry Pi.
+3. **Dimmable LED Bulb** (compatible with 230V AC and PWM dimming)
+4. **TRIAC** (e.g., BTA16, suitable for 230V AC)
+5. **Optocoupler** (e.g., MOC3021, for TRIAC triggering)
+6. **Snubber Circuit Components** :
+
+* Resistor (330 ohms, 1W)
+* Capacitor (0.01µF, 600V)
+
+1. **5V AC-DC Power Supply Module** (5V 5W) to power the ESP32 and control circuit.
+2. **Thermal Fuse** (85°C) to protect against overheating.
+3. **Heat Sink** for the TRIAC.
+4. **Capacitors** : 10µF electrolytic capacitors for power supply stabilization.
+5. **Resistors** : 1kΩ for current limiting in the optocoupler input.
+6. **Insulated Enclosure** : For housing the high-voltage components safely.
 
 ### Circuit Overview
 
-1. **AC Power Input** : Connects to 220V AC socket.
-2. **TRIAC and Optocoupler** : The TRIAC controls the bulb's power, triggered by the optocoupler, which is driven by the Raspberry Pi's GPIO PWM output.
-3. **Snubber Circuit** : Connected across the TRIAC to suppress voltage spikes and protect the circuit.
-4. **Raspberry Pi** : Generates the PWM signal to control the bulb's brightness.
+#### A. **AC-DC Power Supply Section**
 
-### Software Setup
+* **Input** : 230V AC from the wall socket.
+* **Output** : 5V DC, used to power both the ESP32 and the TRIAC control circuitry.
 
-**Python Script** : The script controls the PWM signal to simulate the sunrise.
+#### B. **TRIAC Dimming Circuit**
 
-1. **Start PWM** at a low duty cycle.
-2. **Gradually Increase** the duty cycle over the configured time to simulate a sunrise.
-3. **Schedule the Script** to run at the desired wake-up time using cron jobs.
+* **PWM Output from ESP32** : Drives the input of the optocoupler.
+* **Optocoupler Output** : Controls the gate of the TRIAC.
+* **TRIAC** : Modulates the power to the dimmable LED bulb based on the PWM signal.
+* **Snubber Circuit** : Protects the TRIAC from voltage spikes.
+
+#### C. **Thermal Protection**
+
+* **85°C Thermal Fuse** : Placed near the TRIAC to cut off power if overheating occurs. This protects the circuit from potential thermal damage.
 
 ### Safety Considerations
 
-* **High Voltage Caution** : Exercise extreme caution when working with 230V AC. Ensure all connections are secure and insulated.
-* **Enclosure** : Use a proper enclosure to prevent accidental contact with high-voltage components.
-* **Heat Management** : Ensure the TRIAC has adequate heat sinking to prevent overheating.
+* **Thermal Fuse** : The 85°C thermal fuse provides critical protection against overheating, particularly for the TRIAC. This prevents potential damage or fire hazards due to excessive heat.
+* **Insulated Enclosure** : Ensure all high-voltage components are securely housed to prevent accidental contact and electrical shocks.
+* **Heat Management** : The TRIAC is equipped with a heat sink to dissipate heat effectively.
 
 ### Installation & Setup
 
-1. **Circuit Assembly** : Assemble the circuit on a breadboard first, then transfer to a PCB or permanent board once tested.
-2. **Script Deployment** : Deploy the Python script on the Raspberry Pi, and test the PWM control.
-3. **Cron Job Setup** : Use `crontab -e` to schedule the script to run at your desired wake-up time.
+1. **Circuit Assembly** : Assemble the circuit on a PCB, ensuring proper spacing and insulation between high-voltage AC and low-voltage DC components.
+2. **Power Supply** : Connect the 230V AC input to the 5V AC-DC converter. Verify the 5V output before connecting it to the ESP32 and the control circuit.
+3. **Thermal Fuse Placement** : Install the 85°C thermal fuse close to the TRIAC, ensuring it will trip if the TRIAC overheats.
 
-### Example Cron Job
+### Example Cron Job for Sunrise Simulation
 
 To run the sunrise simulation at 7:00 AM every day:
 
@@ -66,4 +70,4 @@ To run the sunrise simulation at 7:00 AM every day:
 
 ### License
 
-This project is licensed under the MIT License - see the [LICENSE]() file for details.
+This project is licensed under the MIT License - see the [LICENSE]() file for details
